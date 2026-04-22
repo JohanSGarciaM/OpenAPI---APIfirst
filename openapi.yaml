@@ -1,0 +1,336 @@
+openapi: 3.1.1
+info:
+  title: FakeAPI Store
+  version: 1.2.2
+  description: API first for a bakery store
+
+tags:
+  - name: Users
+    description: Operations related to users
+  - name: Products
+    description: Operations related to products
+servers:
+  - url: http://localhost:3000/v1
+    description: versión 1 de la API
+  - url: http://localhost:3000/v2
+    description: version 2 de la API
+components:
+  schemas:
+    HelloResponse:
+      type: object
+    Product:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 40
+        description:
+          type: string
+          maxLength: 500
+        price:
+          type: number
+          minimum: 0
+          multipleOf: 0.01
+        category:
+          type: string
+          enum: [toppers, cakes, desserts, shakes]
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        inStock:
+          type: boolean
+        specifications:
+          type: object
+          additionalProperties:
+            type: string
+        ratings:
+          type: array
+          items:
+            type: object
+            required:
+              - score
+              - comment
+            properties:
+              score:
+                type: integer
+                minimum: 1
+                maximum: 5
+              comment:
+                type: string
+                maxLenght: 200
+
+paths:
+  /hello:
+    get:
+      summary: Hello World
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Crea un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - age
+                - email
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                age:
+                  type: integer
+                  minimum: 18
+                email:
+                  type: string
+                  format: email
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  age:
+                    type: integer
+                  email:
+                    type: string
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Obtener un usuario por el ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuario Encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    post:
+      tags:
+        - Users
+      summary: Modificar un usuario según Id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - age
+                - email
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                age:
+                  type: integer
+                  minimum: 18
+                email:
+                  type: string
+                  format: email                   
+      responses:
+        '200':
+          description: Usuario modificado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Crear un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Producto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    get:
+      tags:
+        - Products
+      summary: Obtener lista de productos
+      responses:
+        '200':
+          description: lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/{id}:
+    get:
+      tags:
+        - products
+      summary: Obtener un producto por Id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    put:
+      tags:
+        - Products
+      summary: Actualizar un producto por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Producto actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      tags:
+        - Products
+      summary: Eliminar un producto por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Producto eliminado exitosamente
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+
+
+
+                
+
+
+
