@@ -37,7 +37,7 @@ app.get('/v2/hello', (req, res) =>{
 });
 
 
-app.post('/users', (req, res) => {
+app.post('/v1/users', (req, res) => {
     const {name, age, email} = req.body;
     const newUser = {
         id: Date.now().toString(),
